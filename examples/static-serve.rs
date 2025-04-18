@@ -16,6 +16,8 @@ impl HttpService for StaticServe {
             - then read it to memory
             - check mime type, then pass content-type to it 
         - if it's not file you can pass it to request route
+        - some example implementation:
+            - https://github.com/prothegee/may_minihttp-example/tree/static_serve
         */
 
         let path = req.path();

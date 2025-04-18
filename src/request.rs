@@ -2,7 +2,20 @@ use std::fmt;
 use std::io::{self, BufRead, Read};
 use std::mem::MaybeUninit;
 
-pub(crate) const MAX_HEADERS: usize = 16;
+/*
+NOTE:
+- if value is greater than 16, it's not mini anymore?
+- but if the value is not set as needed, it might become a security reason:
+    - header-spam attacks
+    - denial-of-service vectors
+    - unnecessarily large memory allocation?
+    - what else?
+- unless it's configureable? from:
+    - some lib function?
+    - the project build it self
+    - or something else to configure this
+*/
+pub(crate) const MAX_HEADERS: usize = 32;
 
 use bytes::{Buf, BufMut, BytesMut};
 use may::net::TcpStream;
