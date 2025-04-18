@@ -1,11 +1,9 @@
 use std::io;
 
-use crate::request::MAX_HEADERS;
-
 use bytes::BytesMut;
+
 pub struct Response<'a> {
-    headers: [&'static str; MAX_HEADERS],
-    headers_len: usize,
+    headers: Vec<String>,
     status_message: StatusMessage,
     body: Body,
     rsp_buf: &'a mut BytesMut,
@@ -24,11 +22,8 @@ struct StatusMessage {
 
 impl<'a> Response<'a> {
     pub(crate) fn new(rsp_buf: &'a mut BytesMut) -> Response<'a> {
-        let headers: [&'static str; 16] = [""; 16];
-
         Response {
-            headers,
-            headers_len: 0,
+            headers: Vec::new(),
             body: Body::Dummy,
             status_message: StatusMessage {
                 code: 200,
@@ -45,9 +40,8 @@ impl<'a> Response<'a> {
     }
 
     #[inline]
-    pub fn header(&mut self, header: &'static str) -> &mut Self {
-        self.headers[self.headers_len] = header;
-        self.headers_len += 1;
+    pub fn header(&mut self, header: impl Into<String>) -> &mut Self {
+        self.headers.push(header.into());
         self
     }
 
@@ -118,9 +112,7 @@ pub(crate) fn encode(mut rsp: Response, buf: &mut BytesMut) {
     let mut length = itoa::Buffer::new();
     buf.extend_from_slice(length.format(rsp.body_len()).as_bytes());
 
-    // SAFETY: we already have bound check when insert headers
-    let headers = unsafe { rsp.headers.get_unchecked(..rsp.headers_len) };
-    for h in headers {
+    for h in &rsp.headers {
         buf.extend_from_slice(b"\r\n");
         buf.extend_from_slice(h.as_bytes());
     }
