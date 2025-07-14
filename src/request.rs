@@ -167,7 +167,7 @@ pub fn decode<'header, 'buf, 'stream>(
         Err(e) => {
             let msg = format!("failed to parse http request: {e:?}");
             eprintln!("{msg}");
-            return err(io::Error::new(io::ErrorKind::Other, msg));
+            return err(io::Error::other(msg));
         }
     };
 
